@@ -31,7 +31,6 @@ import load_recipes as recipes
 # Functii
 def exit_coffee_maker():
     """Retruneaza True ca sa incheie loopul din run_commands."""
-
     return True
 
 def list_coffees():
@@ -178,8 +177,7 @@ exit
 """
 
 def main():
-    """Prints an initial string then calls run_commands."""
-
+    """Afiseaza un mesaj initial, dupa care proceseaza comenzi."""
     print("I'm a smart coffee maker")
     run_commands()
 
