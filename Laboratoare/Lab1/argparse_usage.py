@@ -1,23 +1,51 @@
 #! /opt/anaconda3/bin/python3
 
 import argparse
+import os
+import re
 
-def handle_input_file():
-    pass
+def handle_input_file(file_name):
+    frequency = {}
 
-def handle_output_file():
-    pass
+    if not os.path.isfile(file_name):
+        print("File %s does not exist!" % file_name)
+        return frequency, False
 
-def handle_help():
-    pass
+    file = open(file_name, "r")
+    words = file.read().replace('\n', ' ').split(' ')
+
+    for word in words:
+        if word in frequency:
+            frequency[word] += 1
+        else:
+            frequency[word] = 1
+
+    file.close()
+
+    return frequency, True
+
+def handle_output_file(file_name, frequency):
+    if bool(frequency) == False:
+        print("The input file is empty!")
+        return
+
+    file = open(file_name, "w+")
+
+    for key, value in frequency.items():
+        file.write("%s : %d\n" % (key, value))
+
+    file.close()
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description = "Calculeaza frecventele"
-                                     + "cuvintelor dintr-un fisier de input")
-    parser.add_argument("-i", type=str, required=True,
+    parser = argparse.ArgumentParser(description="Calculates the frequencies "
+                                     + "of the words contained in the input file.")
+    parser.add_argument("-i", type=str, required=True, dest="INPUT_FILE",
                         help="The file where the words are read from")
-    parser.add_argument("-o", type=str, required=False,
+    parser.add_argument("-o", type=str, required=False, dest="OUTPUT_FILE",
                         help="The file where the frequencies will pe dumped")
-    parser.add_argument("-?", type=str, required=False,
-                        help="Shows the usage of the script")
     args = parser.parse_args()
+
+    frequency, found_file = handle_input_file(args.INPUT_FILE)
+
+    if found_file:
+        handle_output_file(args.OUTPUT_FILE, frequency)
