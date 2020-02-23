@@ -27,15 +27,15 @@ def main():
     random.seed(time.time())
 
     num_threads = int(sys.argv[1])
-    threads = []
+    threads = [None] * num_threads
 
     for i in range(num_threads):
-        threads.append(threading.Thread(target = print_thread,
-                       args = (random.randint(-0x80000000, 0x7fffffff), )))
+        threads[i] = threading.Thread(target = print_thread,
+                                      args = (random.randint(-0x80000000, 0x7fffffff), ))
         threads[i].start()
 
-    for i in range(num_threads):
-        threads[i].join()
+    for thread in threads:
+        thread.join()
 
 if __name__ == "__main__":
     main()
