@@ -1,7 +1,6 @@
 #! /usr/local/bin/python3.8
 
 from threading import Thread, Lock
-import random
 import time
 import argparse
 
@@ -14,13 +13,22 @@ class Philosopher(Thread):
         self.right_fork = right_fork
 
     def run(self):
-        time_to_wait = random.uniform(0, 0.3)
-        time.sleep(time_to_wait)
-
-        with self.left_fork:
+        while True:
+            self.left_fork.acquire()
             time.sleep(0.1)
-            with self.right_fork:
-                print("Philosopher %d is eating" % self.id)
+            result = self.right_fork.acquire(False)
+            
+            if result == True:
+                break
+
+            self.left_fork.release()
+
+            self.left_fork, self.right_fork = self.right_fork, self.left_fork
+
+        print("Philosopher %d is eating" % self.id)
+
+        self.left_fork.release()
+        self.right_fork.release()
 
 def main():
     parser = argparse.ArgumentParser(description="Showcases the philosophers' "
@@ -28,8 +36,6 @@ def main():
     parser.add_argument("-p", type=int, required=True, dest="NUM_PHILOSOPHERS",
                         help="the number of philosophers")
     args = parser.parse_args()
-
-    random.seed(time.time())
 
     forks = []
     philosophers = [None] * args.NUM_PHILOSOPHERS
