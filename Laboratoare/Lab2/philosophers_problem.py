@@ -37,18 +37,15 @@ def main():
                         help="the number of philosophers")
     args = parser.parse_args()
 
-    forks = []
-    philosophers = [None] * args.NUM_PHILOSOPHERS
+    forks = [Lock() for i in range(args.NUM_PHILOSOPHERS)]
+    philosophers = [Philosopher(i, forks[i - 1], forks[i])
+                        for i in range(args.NUM_PHILOSOPHERS)]
 
-    for i in range(args.NUM_PHILOSOPHERS):
-        forks.append(Lock())
+    for philosopher in philosophers:
+        philosopher.start()
 
-    for i in range(args.NUM_PHILOSOPHERS):
-        philosophers[i] = Philosopher(i, forks[i - 1], forks[i])
-        philosophers[i].start()
-
-    for i in range(args.NUM_PHILOSOPHERS):
-        philosophers[i].join()
+    for philosopher in philosophers:
+        philosopher.join()
 
 if __name__ == "__main__":
     main()

@@ -161,13 +161,16 @@ def main():
     producers = [None] * args.NUM_PRODUCERS
     consumers = [None] * args.NUM_CONSUMERS
 
-    for i in range(args.NUM_PRODUCERS):
-        producers[i] = CoffeeFactory(i, buff, sizes, coffees)
-        producers[i].start()
+    producers = [CoffeeFactory(i, buff, sizes, coffees)
+                    for i in range(args.NUM_PRODUCERS)]
+    users = [User(i, buff)
+                for i in range(args.NUM_CONSUMERS)]
 
-    for i in range(args.NUM_CONSUMERS):
-        consumers[i] = User(i, buff)
-        consumers[i].start()
+    for producer in producers:
+        producer.start()
+
+    for user in users:
+        user.start()
 
 if __name__ == '__main__':
     main()
