@@ -27,12 +27,12 @@ def main():
     random.seed(time.time())
 
     num_threads = int(sys.argv[1])
-    threads = [None] * num_threads
+    threads = [threading.Thread(target = print_thread,
+                args = (random.randint(-0x80000000, 0x7fffffff), ))
+                    for i in range (num_threads)]
 
-    for i in range(num_threads):
-        threads[i] = threading.Thread(target = print_thread,
-                                      args = (random.randint(-0x80000000, 0x7fffffff), ))
-        threads[i].start()
+    for thread in threads:
+        thread.start()
 
     for thread in threads:
         thread.join()
