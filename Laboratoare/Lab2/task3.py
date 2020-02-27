@@ -158,9 +158,6 @@ def main():
 
     buff = Distributor(args.BUFFER_SIZE)
 
-    producers = [None] * args.NUM_PRODUCERS
-    consumers = [None] * args.NUM_CONSUMERS
-
     producers = [CoffeeFactory(i, buff, sizes, coffees)
                     for i in range(args.NUM_PRODUCERS)]
     users = [User(i, buff)

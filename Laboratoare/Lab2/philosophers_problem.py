@@ -14,20 +14,17 @@ class Philosopher(Thread):
 
     def run(self):
         while True:
-            self.left_fork.acquire()
-            time.sleep(0.1)
-            result = self.right_fork.acquire(False)
-            
-            if result == True:
-                break
-
-            self.left_fork.release()
+            with self.left_fork:
+                time.sleep(0.1)
+                result = self.right_fork.acquire(False)
+                
+                if result == True:
+                    break
 
             self.left_fork, self.right_fork = self.right_fork, self.left_fork
 
         print("Philosopher %d is eating" % self.id)
 
-        self.left_fork.release()
         self.right_fork.release()
 
 def main():
