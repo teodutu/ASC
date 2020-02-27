@@ -32,7 +32,7 @@ Consumer 94 consumed americano
 
 import argparse
 import random
-from threading import Lock, Semaphore, Thread
+from threading import BoundedSemaphore, Semaphore, Thread
 import time
 
 class Coffee:
@@ -80,8 +80,8 @@ class Distributor:
     """Distributor - the buffer"""
     def __init__(self, buffer_size):
         self.buffer_size = buffer_size
-        self.mutex_prod = Lock()
-        self.mutex_cons = Lock()
+        self.mutex_prod = BoundedSemaphore(1)
+        self.mutex_cons = BoundedSemaphore(1)
         self.empty = Semaphore(value=buffer_size)
         self.full = Semaphore(value=0)
         self.buffer = [None] * buffer_size
