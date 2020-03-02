@@ -70,7 +70,7 @@ if __name__ == "__main__":
 
     # Start worker and master
     w = Worker(terminate, work_available, result_available)
-    m = Master(100000, work_available, result_available)
+    m = Master(100, work_available, result_available)
     w.set_master(m)
     m.set_worker(w)
     w.start()

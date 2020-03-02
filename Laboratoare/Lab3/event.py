@@ -1,3 +1,5 @@
+#! /usr/local/bin/python3.8
+
 from threading import enumerate, Event, Thread
 
 class Master(Thread):
@@ -46,7 +48,7 @@ class Worker(Thread):
             self.work_available.wait()
             self.work_available.clear()
             
-            if(terminate.is_set()):
+            if (terminate.is_set()):
                 break
 
             # generate result
