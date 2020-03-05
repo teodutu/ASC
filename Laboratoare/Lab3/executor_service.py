@@ -25,11 +25,11 @@ def main():
         results = [executor.submit(find_substr, DNA_samples, sequence, i)
                         for i in range(NUM_SAMPLES)]
 
-    for res in as_completed(results):
-        result_str = res.result()
+        for res in as_completed(results):
+            result_str = res.result()
 
-        if (result_str != ""):
-            print(result_str)
+            if (result_str != ""):
+                print(result_str)
 
 if __name__ == "__main__":
     main()
