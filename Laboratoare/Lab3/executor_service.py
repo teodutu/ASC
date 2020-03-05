@@ -1,7 +1,7 @@
 #! /usr/local/bin/python3.8
 
 import random
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 SAMPLE_LEN = 10000
 NUM_SAMPLES = 100
@@ -22,12 +22,14 @@ def main():
     sequence = "TCCGGCCCGGGTT"
 
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-        results = [executor.submit(find_substr, DNA_samples, sequence, i).result()
+        results = [executor.submit(find_substr, DNA_samples, sequence, i)
                         for i in range(NUM_SAMPLES)]
 
-    for result in results:
-        if (result != ""):
-            print(result)
+    for res in as_completed(results):
+        result_str = res.result()
+
+        if (result_str != ""):
+            print(result_str)
 
 if __name__ == "__main__":
     main()
