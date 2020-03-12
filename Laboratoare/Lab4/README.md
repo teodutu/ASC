@@ -130,11 +130,71 @@ dimensiunii structurii b de 24 octeti), urmate de a-uri, apoi l-uri si ultimele
 sunt i-urile. Intrucat dimensiunile i-urilor, l-urilor si a-urilor sunt puteri
 de 2, compilatorul aloca doar spatiu pentru acestea, neincercand sa le alinieze.
 
+```
+teo@obor Lab4 $ make task3
+cc -std=c99 -g -Wall -O0    task3.c  -lm -o task3
+teo@obor Lab4 $ ./task3
+b5: 0x7ffe0e61aa20
+b4: 0x7ffe0e61aa00
+b3: 0x7ffe0e61a9e0
+b2: 0x7ffe0e61a9c0
+b1: 0x7ffe0e61a9a0
+a5: 0x7ffe0e61a990
+a4: 0x7ffe0e61a980
+a3: 0x7ffe0e61a970
+a2: 0x7ffe0e61a960
+a1: 0x7ffe0e61a950
+l5: 0x7ffe0e61a938
+l4: 0x7ffe0e61a930
+l3: 0x7ffe0e61a928
+l2: 0x7ffe0e61a920
+l1: 0x7ffe0e61a918
+i5: 0x7ffe0e61a914
+i4: 0x7ffe0e61a910
+i3: 0x7ffe0e61a90c
+i2: 0x7ffe0e61a908
+i1: 0x7ffe0e61a904
+struct a: 16
+struct b: 24
+aux_vect: 0x564ee7b02670
+vect:     0x564ee7b02680
+```
+
 ### Cu -O2 sau -O3
 Se observa acelasi comportament. Dat fiind ca afisez adresele tuturor
 variabilelor declarate, compilatorul nu poate sa elimine vreuna dintre ele.
 Daca, in schimb, elimin afisarea unor variabile, compilatorul nu le mai declara,
 iar adresele ramase sunt tot in ordine.
+
+```
+teo@obor Lab4 $ make task3
+cc -std=c99 -g -Wall -O3    task3.c  -lm -o task3
+teo@obor Lab4 $ ./task3
+b5: 0x7fffa88d3d40
+b4: 0x7fffa88d3d20
+b3: 0x7fffa88d3d00
+b2: 0x7fffa88d3ce0
+b1: 0x7fffa88d3cc0
+a5: 0x7fffa88d3cb0
+a4: 0x7fffa88d3ca0
+a3: 0x7fffa88d3c90
+a2: 0x7fffa88d3c80
+a1: 0x7fffa88d3c70
+l5: 0x7fffa88d3c68
+l4: 0x7fffa88d3c60
+l3: 0x7fffa88d3c58
+l2: 0x7fffa88d3c50
+l1: 0x7fffa88d3c48
+i5: 0x7fffa88d3c44
+i4: 0x7fffa88d3c40
+i3: 0x7fffa88d3c3c
+i2: 0x7fffa88d3c38
+i1: 0x7fffa88d3c34
+struct a: 16
+struct b: 24
+aux_vect: 0x55846b494670
+vect:     0x55846b494680
+```
 
 ### Alocare aliniata
 Misto schema cu `(aux_vect + 31) & ~31`.
