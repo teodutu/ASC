@@ -1,4 +1,4 @@
-CFLAGS  = -std=c99 -g -Wall
+CFLAGS  = -std=c99 -g -Wall -O3
 LDLIBS  = -lm
 OBJS    = task1a task1b task1c task2_lin task2_mat task3 task4 task5
 

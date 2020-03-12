@@ -3,11 +3,11 @@
 ## Precizari intiale
 ### CPU
 Intel i7-8700K @ 4.7GHz:
-- L1 cache = 
+- L1 cache = 32K
 
-- L2 cache = 
+- L2 cache = 256K
 
-- L3 cache = 
+- L3 cache = 12M
 
 RAM = 16GB @ 3000MHz
 
@@ -196,5 +196,28 @@ aux_vect: 0x55846b494670
 vect:     0x55846b494680
 ```
 
+De precizat ca versiunea de _gcc_ folosita este `7.5.0`:
+```
+teo@obor Lab4 $ gcc --version
+gcc (Ubuntu 7.5.0-3ubuntu1~18.04) 7.
+```
+
 ### Alocare aliniata
 Misto schema cu `(aux_vect + 31) & ~31`.
+
+## Task 4
+
+### L1
+In fisierul `plot_l1.pdf` se gaseste plotul care demonstreaza dimensiunea
+cacheului _L1_. In grafic se observa ca performanta scade cam de pe la 32K, care
+este fix dimensiunea cacheului _L1_ al procesorului meu.
+
+### L2
+In fisierul `plot_l2.pdf` se gaseste un grafic care incearca sa gaseasca
+dimensiunea cacheului _L2_. Ce nu inteleg este de ce curba se aplatizeaza la
+512K in timp ce cacheul meu _L2_ are 256K. Nu pricep de ce...
+
+## Task 5
+
+Curba pare ca se aplatizeaza pe la 64 bytes, care este si lungimea liniei de
+cache a procesorului.

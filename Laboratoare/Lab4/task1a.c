@@ -9,7 +9,7 @@
 #include <stdint.h>     // provides int8_t, uint8_t, int16_t etc.
 #include <stdlib.h>
 
-#define NUM_PARTICLES           (10000000)  // cam cat imaginea maxima a unui proces in memorie
+#define NUM_PARTICLES           (10000000)
 
 struct particle
 {
@@ -21,7 +21,7 @@ struct particle vect[NUM_PARTICLES];
 
 int main(int argc, char* argv[])
 {
-    long n = NUM_PARTICLES;//atol(argv[1]);
+    long n = NUM_PARTICLES;
 
     // generate some particles
     for(long i = 0; i < n; i += (5 * (1 << 20)))
