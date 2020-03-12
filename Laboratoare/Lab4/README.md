@@ -89,7 +89,6 @@ viteza maxima este: 110.851250
 ==3520== LL miss rate:             0.0% (           0.0%     +           0.1%  )
 
 
-
 teo@obor Lab4 $ valgrind --tool=cachegrind ./task2_mat 10000
 ==3657== Cachegrind, a cache and branch-prediction profiler
 ==3657== Copyright (C) 2002-2017, and GNU GPL'd, by Nicholas Nethercote et al.
@@ -121,3 +120,21 @@ viteza maxima este: 110.851250
 ==3657== LL miss rate:             0.0% (           0.0%     +           0.1%  )
 
 ```
+
+## Task 3
+
+### Fara optimizari de compilare (-O0)
+Compilatorul reordoneaza variabilele i, l, a, b pentru aliniere. Astfel, primele
+in ordinea scaderii adreselor de pe stiva sunt b-urile (aliniate la 32B in ciuda
+dimensiunii structurii b de 24 octeti), urmate de a-uri, apoi l-uri si ultimele
+sunt i-urile. Intrucat dimensiunile i-urilor, l-urilor si a-urilor sunt puteri
+de 2, compilatorul aloca doar spatiu pentru acestea, neincercand sa le alinieze.
+
+### Cu -O2 sau -O3
+Se observa acelasi comportament. Dat fiind ca afisez adresele tuturor
+variabilelor declarate, compilatorul nu poate sa elimine vreuna dintre ele.
+Daca, in schimb, elimin afisarea unor variabile, compilatorul nu le mai declara,
+iar adresele ramase sunt tot in ordine.
+
+### Alocare aliniata
+Misto schema cu `(aux_vect + 31) & ~31`.
