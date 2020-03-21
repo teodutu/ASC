@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
-#define N		2000
+#define N		1500
 
 double A[N][N];
 double B[N][N];
@@ -11,7 +11,7 @@ double C[N][N];
 
 int main(void)
 {
-	double *initialBPtr, *cPtr, *bPtr, *aPtr;
+	double *aPtr, *bPtr;
 	int i, j, k;
 	int numMatrixElems = N * N;
 	struct timeval start, end;
@@ -29,19 +29,13 @@ int main(void)
 
 	gettimeofday(&start, NULL);
 
-	for (k = 0; k != N; ++k)
+	for (i = 0; i != N; ++i)
 	{
-		initialBPtr = B[k];  /* linia k din B */
-		aPtr = &A[0][k];  /* coloana k din A */
-
-		for (i = 0; i != N; ++i, aPtr += N)
+		for (j = 0; j != N; ++j)
 		{
-			cPtr = C[i];  /* linia i din C */
-			bPtr = initialBPtr;
-
-			for (j = 0; j != N; ++j, ++bPtr, ++cPtr)
+			for (k = 0; k != N; ++k)
 			{
-				*cPtr += *aPtr * *bPtr;
+				C[i][j] += A[i][k] * B[k][j];
 			}
 		}
 	}
