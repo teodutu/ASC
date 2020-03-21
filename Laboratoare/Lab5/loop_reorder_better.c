@@ -66,8 +66,9 @@ int main(void)
 
 			if (fabs(D[i][j] - C[i][j]) > 0.001)
 			{
-				printf("Incorrect result value at positions (%d, %d): correct value is %lf; result is %lf\n",
-					i, j, D[i][j], C[i][j]);
+				printf("Incorrect result value at positions"
+					"(%d, %d): correct value is %lf; result"
+					"is %lf\n", i, j, D[i][j], C[i][j]);
 				exit(EXIT_FAILURE);
 			}
 		}
