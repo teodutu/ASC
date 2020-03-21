@@ -3,7 +3,8 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
-#define N		1500
+#define N			1500
+#define SECOND_MICROS		1000000.f
 
 double A[N][N];
 double B[N][N];
@@ -42,8 +43,8 @@ int main(void)
 
 	gettimeofday(&end, NULL);
 
-	float elapsed = ((end.tv_sec - start.tv_sec) * 1000000.0f
-		+ end.tv_usec - start.tv_usec) / 1000000.0f;
+	float elapsed = ((end.tv_sec - start.tv_sec) * SECOND_MICROS
+		+ end.tv_usec - start.tv_usec) / SECOND_MICROS;
 	printf("Time for N = %d is %f seconds.\n", N, elapsed);
 
 	return 0;

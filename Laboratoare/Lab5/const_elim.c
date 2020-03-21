@@ -34,12 +34,12 @@ int main(void)
 
 	for (i = 0; i != N; ++i)
 	{
-		initialAPtr = A[i];
+		initialAPtr = A[i];  /* linia i din A */
 
 		for (j = 0; j != N; ++j)
 		{
 			aPtr = initialAPtr;
-			bPtr = &B[0][j];
+			bPtr = &B[0][j];  /* coloana j din B */
 
 			register double sum = 0.0;
 
