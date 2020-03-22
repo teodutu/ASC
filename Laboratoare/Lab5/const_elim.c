@@ -4,25 +4,28 @@
 #include <sys/time.h>
 #include <math.h>
 
-#define N		1500
+#define N			1500
 #define SECOND_MICROS		1000000.f
-
-double A[N][N];
-double B[N][N];
-double C[N][N];
-double D[N][N];
 
 int main(void)
 {
-	double *initialAPtr, *aPtr, *bPtr;
+	double *initialAPtr, *initialBPtr, *initialCPtr;
+	double  *aPtr, *bPtr, *cPtr;
 	int i, j, k;
 	int numMatrixElems = N * N;
 	struct timeval start, end;
+	double* A;
+	double* B;
+	double* C;
+	double* D;
 
-	srand(42);
+	A = malloc(numMatrixElems * sizeof(*A));
+	B = malloc(numMatrixElems * sizeof(*B));
+	C = calloc(numMatrixElems, sizeof(*C));
+	D = calloc(numMatrixElems, sizeof(*D));
 
-	aPtr = A[0];
-	bPtr = B[0];
+	aPtr = A;
+	bPtr = B;
 
 	for (i = 0; i != numMatrixElems; ++i, ++aPtr, ++bPtr)
 	{
@@ -30,16 +33,22 @@ int main(void)
 		*bPtr = (double)rand() / RAND_MAX * 2.0 - 1.0;
 	}
 
+	srand(42);
+
 	gettimeofday(&start, NULL);
 
-	for (i = 0; i != N; ++i)
-	{
-		initialAPtr = A[i];  /* linia i din A */
+	initialAPtr = A;  /* linia i din A */
+	initialCPtr = C;  /* linia i din C */
 
-		for (j = 0; j != N; ++j)
+	for (i = 0; i != N; ++i, initialAPtr += N, initialCPtr += N)
+	{
+		initialBPtr = B;  /* coloana j din B */
+		cPtr = initialCPtr;
+
+		for (j = 0; j != N; ++j, ++initialBPtr, ++cPtr)
 		{
 			aPtr = initialAPtr;
-			bPtr = &B[0][j];  /* coloana j din B */
+			bPtr = initialBPtr;
 
 			register double sum = 0.0;
 
@@ -48,7 +57,7 @@ int main(void)
 				sum += *aPtr * *bPtr;
 			}
 
-			C[i][j] = sum;
+			*cPtr = sum;
 		}
 	}
 
@@ -64,20 +73,26 @@ int main(void)
 		{
 			for (k = 0; k != N; ++k)
 			{
-				D[i][j] += A[i][k] * B[k][j];
+				D[i * N + j] += A[i * N + k] * B[k * N + j];
 			}
 
-			if (fabs(D[i][j] - C[i][j]) > 0.001)
+			if (fabs(D[i * N + j] - C[i * N + j]) > 0.001)
 			{
 				printf("Incorrect result value at positions"
 					"(%d, %d): correct value is %lf; result"
-					"is %lf\n", i, j, D[i][j], C[i][j]);
+					"is %lf\n", i, j, D[i * N + j],
+					C[i * N + j]);
 				exit(EXIT_FAILURE);
 			}
 		}
 	}
 
 	printf("Time for N = %d is %f seconds.\n", N, elapsed);
+
+	free(A);
+	free(B);
+	free(C);
+	free(D);
 
 	return 0;
 }

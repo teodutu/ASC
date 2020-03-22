@@ -7,22 +7,25 @@
 #define N			1500
 #define SECOND_MICROS		1000000.f
 
-double A[N][N];
-double B[N][N];
-double C[N][N];
-double D[N][N];
-
 int main(void)
 {
-	double *initialBPtr, *cPtr, *bPtr, *aPtr;
+	double *cPtr, *bPtr, *aPtr;
+	double *initialBPtr, *initialAPtr, *initialCPtr;
 	int i, j, k;
 	int numMatrixElems = N * N;
 	struct timeval start, end;
+	double* A;
+	double* B;
+	double* C;
+	double* D;
 
-	srand(42);
+	A = malloc(numMatrixElems * sizeof(*A));
+	B = malloc(numMatrixElems * sizeof(*B));
+	C = calloc(numMatrixElems, sizeof(*C));
+	D = calloc(numMatrixElems, sizeof(*D));
 
-	aPtr = A[0];
-	bPtr = B[0];
+	aPtr = A;
+	bPtr = B;
 
 	for (i = 0; i != numMatrixElems; ++i, ++aPtr, ++bPtr)
 	{
@@ -30,16 +33,21 @@ int main(void)
 		*bPtr = (double)rand() / RAND_MAX * 2.0 - 1.0;
 	}
 
+	srand(42);
+
 	gettimeofday(&start, NULL);
 
-	for (k = 0; k != N; ++k)
-	{
-		initialBPtr = B[k];  /* linia k din B */
-		aPtr = &A[0][k];  /* coloana k din A */
+	initialBPtr = B;  /* linia k din B */
+	initialAPtr = A;  /* coloana k din A */
 
-		for (i = 0; i != N; ++i, aPtr += N)
+	for (k = 0; k != N; ++k, initialBPtr += N, ++initialAPtr)
+	{
+		aPtr = initialAPtr;
+		initialCPtr = C;
+
+		for (i = 0; i != N; ++i, aPtr += N, initialCPtr += N)
 		{
-			cPtr = C[i];  /* linia i din C */
+			cPtr = initialCPtr;  /* linia i din C */
 			bPtr = initialBPtr;
 
 			for (j = 0; j != N; ++j, ++bPtr, ++cPtr)
@@ -61,20 +69,26 @@ int main(void)
 		{
 			for (k = 0; k != N; ++k)
 			{
-				D[i][j] += A[i][k] * B[k][j];
+				D[i * N + j] += A[i * N + k] * B[k * N + j];
 			}
 
-			if (fabs(D[i][j] - C[i][j]) > 0.001)
+			if (fabs(D[i * N + j] - C[i * N + j]) > 0.001)
 			{
 				printf("Incorrect result value at positions"
 					"(%d, %d): correct value is %lf; result"
-					"is %lf\n", i, j, D[i][j], C[i][j]);
+					"is %lf\n", i, j, D[i * N + j],
+					C[i * N + j]);
 				exit(EXIT_FAILURE);
 			}
 		}
 	}
 
 	printf("Time for N = %d is %f seconds.\n", N, elapsed);
+
+	free(A);
+	free(B);
+	free(C);
+	free(D);
 
 	return 0;
 }

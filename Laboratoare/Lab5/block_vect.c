@@ -6,11 +6,11 @@
 #define BLOCK_SIZE		50
 #define NUM_REPS		10
 
-void BMMultiply(double* a, double* b, double* c)
+void BMMultiply(double** a, double** b, double** c)
 {
 	int bi, bj, bk;
 	int i, j, k;
-	double *cPtr, *aPtr, *bPtr;
+ 	double *cPtr, *aPtr, *bPtr;
  
 	for(bi = 0; bi < N; bi += BLOCK_SIZE)
 	{
@@ -20,18 +20,16 @@ void BMMultiply(double* a, double* b, double* c)
 			{
 				for(i = 0; i != BLOCK_SIZE; ++i)
 				{
-					aPtr = a + (bi + i) * N + bk; 
-					cPtr = c + (bi + i) * N + bj;
+					aPtr = a[bi + i] + bk;
+					cPtr = c[bi + i] + bj;
 
 					for(j = 0; j != BLOCK_SIZE; ++j, ++cPtr)
 					{
-						bPtr = b + bj + j + bk * N;
-
 						register double sum;
 
 						for(k = 0; k != BLOCK_SIZE; ++k, ++aPtr, bPtr += N)
 						{
-							sum += *aPtr * *bPtr;
+							sum += *aPtr * b[bj + j][bk + k];
 						}
 
 						*cPtr = sum;
@@ -44,32 +42,29 @@ void BMMultiply(double* a, double* b, double* c)
 
 int main(void)
 {
-	double* A;
-	double* B;
-	double* C;
-	int totalSize;
-	int i;
+	int i, j;
 	struct timeval tv1, tv2;
 	struct timezone tz;
 	double elapsed;
+	double** A;
+	double** B;
+	double** C;
 
-	totalSize = N * N;
+	A = malloc(N * sizeof(*A));
+	B = malloc(N * sizeof(*B));
+	C = calloc(N, sizeof(*C));
 
-	// TODO: allocate matrices A, B & C
-	///////////////////// Matrix A //////////////////////////
-	A = malloc(totalSize * sizeof(*A));
-
-	///////////////////// Matrix B ////////////////////////// 
-	B = malloc(totalSize * sizeof(*B));
-
-	///////////////////// Matrix C //////////////////////////
-	C = calloc(totalSize, sizeof(*C));
-
-	// Initialize matrices A & B
-	for (i = 0; i != totalSize; ++i)
+	for (i = 0; i != N; ++i)
 	{
-		A[i] = 1.0;
-		B[i] = 2.0;
+		A[i] = malloc(N * sizeof(**A));
+		B[i] = malloc(N * sizeof(**B));
+		C[i] = calloc(N, sizeof(**C));
+
+		for (j = 0; j != N; ++j)
+		{
+			A[i][j] = 1.0;
+			B[i][j] = 2.0;
+		}
 	}
 
 	//multiply matrices
@@ -87,7 +82,13 @@ int main(void)
 	printf("Average time for N = %d, BLOCK_SIZE = %d is %lf seconds\n",
 		N, NUM_REPS, elapsed / NUM_REPS);
 
-	//deallocate memory for matrices A, B & C
+	for (i = 0; i != N; ++i)
+	{
+		free(A[i]);
+		free(B[i]);
+		free(C[i]);
+	}
+
 	free(A);
 	free(B);
 	free(C);
