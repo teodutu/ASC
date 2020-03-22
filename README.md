@@ -6,3 +6,5 @@ Arhitectura Sistemelor de Calcul - UPB 2020
 2. **Python**: Introducere in _multithreading_ in _Python_
 3. **Python**: `Condition()` si `Event()`
 4. **C**: Inspectare a cacheului folosind `valgrind --tool=cachegrind`
+5. **C**: Optimizarea operatiei de inmultire de matrice
+
