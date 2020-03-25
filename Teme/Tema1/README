@@ -1,0 +1,22 @@
+# Arhitectura Sistemelor de calcul - Tema 1 - Marketplace, Martie 2020
+
+# Enunt
+http://ocw.cs.pub.ro/courses/asc/teme/tema1
+
+# Testare
+
+* Folositi scriptul run_tests.sh.
+* Schimbati inainte de a il rula variabila PYTHON din interiorul lui cu comanda folosita pe calculatorul vostru
+* Fisierele de input si output-referinta se afla in directorul tests/
+   * tot in acest director se genereaza si fisierul output al rularii temei folosind test.py
+* Pentru a verifica partea de code-style, trebuie sa aveti instalat pylint
+   * am oferit in schelet fisierul pylintrc cu configurarea acestui tool
+   * puteti da comanda pylint pe sursele voastre sau sa decomentati linia pt pylint din scriptul run_tests.sh
+
+Directorul test-gen contine scripturi pentru generarea testelor.
+ * README_TESTS - descrie formatul json al fisierelor de intrare
+ * test_generator.py - genereaza fisierle aferente unui test
+ * test_utils.py - constante utilizate in test_generator
+ * generate_tests.sh - genereaza cele 10 teste oferite in schelet si pentru care se va oferi punctajul temei
+
+Puteti sa testati tema si pe teste proprii create folosind scriptul test_generator.py
