@@ -53,7 +53,8 @@ mai mult timp si bottleneckuri.
 ### Source
 Arata timpul de executie al fiecarei instructiune. Cea mai costisitoare
 instructiune este cea care executa `n % i` in `TestForPrime()` intrucat se
-executa de un numar mare de ori (`O(n^2)`).
+executa de un numar mare de ori: `O(n)`, iar fiecare apel face tot `O(n)`
+operatii, deci in complexitatea totala este `O(n^2)`.
 
 ### Disassembly
 Identic in functionare cu _Source_, dar are o granularitate mai mica, intrucat
