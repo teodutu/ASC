@@ -6,6 +6,7 @@ Assignment 1
 March 2020
 """
 
+from threading import Lock
 
 class Marketplace:
     """
@@ -21,7 +22,12 @@ class Marketplace:
         """
         self.max_prod_q_size = queue_size_per_producer
         self.prod_q_sizes = []
-        self.products = []
+        self.products = set()
+        self.carts = {}
+        self.producers = {}
+
+        self.lock_remove = Lock()
+        self.lock_add = Lock()
 
     def register_producer(self):
         """
@@ -45,10 +51,14 @@ class Marketplace:
         """
         prod_id = int(producer_id)
 
-        if prod_id == self.max_prod_q_size:
+        if self.prod_q_sizes[prod_id] >= self.max_prod_q_size:
             return False
 
-        self.products.append((product, prod_id))
+        self.products.add(product)
+        self.producers[product] = prod_id
+
+        with self.lock_add:
+            self.prod_q_sizes[prod_id] += 1
 
         return True
 
@@ -58,7 +68,10 @@ class Marketplace:
 
         :returns an int representing the cart_id
         """
-        pass
+        cart_id = len(self.carts)
+        self.carts[cart_id] = set()
+
+        return cart_id
 
     def add_to_cart(self, cart_id, product):
         """
@@ -72,7 +85,17 @@ class Marketplace:
 
         :returns True or False. If the caller receives False, it should wait and then try again
         """
-        pass
+        with self.lock_remove:
+            if product not in self.products:
+                return False
+
+            self.products.remove(product)
+
+            self.prod_q_sizes[self.producers[product]] -= 1
+
+        self.carts[cart_id].add(product)
+
+        return True
 
     def remove_from_cart(self, cart_id, product):
         """
@@ -84,7 +107,11 @@ class Marketplace:
         :type product: Product
         :param product: the product to remove from cart
         """
-        pass
+        self.carts[cart_id].remove(product)
+        self.products.add(product)
+
+        with self.lock_add:
+           self.prod_q_sizes[self.producers[product]] += 1
 
     def place_order(self, cart_id):
         """
@@ -93,4 +120,12 @@ class Marketplace:
         :type cart_id: Int
         :param cart_id: id cart
         """
-        pass
+        prod_list = list(self.carts[cart_id])
+        self.carts.remove(cart_id)
+
+        for product in prod_list:
+            with self.lock_add:
+                self.prod_q_sizes[self.producers[product]] += 1
+
+            self.products.remove(product)
+            self.producers.remove(product)
