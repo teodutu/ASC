@@ -6,7 +6,8 @@ Assignment 1
 March 2020
 """
 
-from threading import Thread
+from threading import Thread, currentThread
+import time
 
 
 class Consumer(Thread):
@@ -31,13 +32,38 @@ class Consumer(Thread):
         :type kwargs:
         :param kwargs: other arguments that are passed to the Thread's __init__()
         """
-        Thread.__init__(self, kwargs = kwargs)
+        Thread.__init__(self, kwargs=kwargs)
+
         self.carts = carts
         self.marketplace = marketplace
         self.retry_wait_time = retry_wait_time
-
+        self.operations = {"add": self.marketplace.add_to_cart,
+                           "remove": self.marketplace.remove_from_cart}
 
     def run(self):
-        print("Consumator:")
-        print(self.carts)
-        print("")
+        for cart in self.carts:
+            cart_id = self.marketplace.new_cart()
+
+            for operation in cart:
+                num_ops = 0
+
+                while num_ops != operation["quantity"]:
+                    print("{} face operatia {} pe produsul {}".format(
+                        currentThread().getName(), operation["type"],
+                        operation["product"]))
+                    ret = self.operations[operation["type"]](cart_id,
+                                                             operation["product"])
+
+                    if ret == False:
+                        print("{} a dat fail".format(currentThread().getName()))
+                        time.sleep(self.retry_wait_time)
+                    else:
+                        print("{} a reusit".format(currentThread().getName()))
+                        num_ops += 1
+
+            products = self.marketplace.place_order(cart_id)
+
+            for product in products:
+                print("{} bought {}".format(currentThread().getName(), product))
+
+        print("%s a terminat" % currentThread().getName())
