@@ -19,13 +19,17 @@ class Marketplace:
         :type queue_size_per_producer: Int
         :param queue_size_per_producer: the maximum size of a queue associated with each producer
         """
-        pass
+        self.max_prod_q_size = queue_size_per_producer
+        self.prod_q_sizes = []
+        self.products = []
 
     def register_producer(self):
         """
         Returns an id for the producer that calls this.
         """
-        pass
+        self.prod_q_sizes.append(0)
+
+        return len(self.prod_q_sizes) - 1
 
     def publish(self, producer_id, product):
         """
@@ -39,7 +43,14 @@ class Marketplace:
 
         :returns True or False. If the caller receives False, it should wait and then try again.
         """
-        pass
+        prod_id = int(producer_id)
+
+        if prod_id == self.max_prod_q_size:
+            return False
+
+        self.products.append((product, prod_id))
+
+        return True
 
     def new_cart(self):
         """

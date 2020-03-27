@@ -8,7 +8,6 @@ March 2020
 
 from dataclasses import dataclass
 
-
 @dataclass(init=True, repr=True, order=False, frozen=True)
 class Product:
     """

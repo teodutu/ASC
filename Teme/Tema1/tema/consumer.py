@@ -25,13 +25,19 @@ class Consumer(Thread):
         :param marketplace: a reference to the marketplace
 
         :type retry_wait_time: Time
-        :param retry_wait_time: the number of seconds that a producer must wait
+        :param retry_wait_time: the number of seconds that a consumer must wait
         until the Marketplace becomes available
 
         :type kwargs:
         :param kwargs: other arguments that are passed to the Thread's __init__()
         """
-        pass
+        Thread.__init__(self, kwargs = kwargs)
+        self.carts = carts
+        self.marketplace = marketplace
+        self.retry_wait_time = retry_wait_time
+
 
     def run(self):
-        pass
+        print("Consumator:")
+        print(self.carts)
+        print("")
