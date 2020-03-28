@@ -7,6 +7,7 @@ March 2020
 """
 
 from threading import Lock
+from threading import currentThread
 
 
 class Marketplace:
@@ -23,22 +24,26 @@ class Marketplace:
         """
         self.max_prod_q_size = queue_size_per_producer
         self.prod_q_sizes = []
-        self.products = set()
+        self.products = []
         self.carts = {}
         self.producers = {}
-        self.num_carts = 0
+        self.cons_names = {}
 
-        self.lock_remove = Lock()
-        self.lock_add = Lock()
+        self.num_carts = 0
+        self.cons_id = 0
+
+        self.lock_sizes = Lock()
         self.lock_num_carts = Lock()
+        self.lock_cons_id = Lock()
+        self.lock_register = Lock()
 
     def register_producer(self):
         """
         Returns an id for the producer that calls this.
         """
-        self.prod_q_sizes.append(0)
-
-        return len(self.prod_q_sizes) - 1
+        with self.lock_register:
+            self.prod_q_sizes.append(0)
+            return len(self.prod_q_sizes) - 1
 
     def publish(self, producer_id, product):
         """
@@ -54,15 +59,12 @@ class Marketplace:
         """
         prod_id = int(producer_id)
 
-        # print("ma blochez la lock_add in publish")
-        with self.lock_add:
-            # print("nu ma blochez")
-            if self.prod_q_sizes[prod_id] >= self.max_prod_q_size:
-                return False
+        if self.prod_q_sizes[prod_id] >= self.max_prod_q_size:
+            return False
 
-            self.prod_q_sizes[prod_id] += 1
+        self.prod_q_sizes[prod_id] += 1
 
-        self.products.add(product)
+        self.products.append(product)
         self.producers[product] = prod_id
 
         return True
@@ -75,9 +77,20 @@ class Marketplace:
         """
         with self.lock_num_carts:
             self.num_carts += 1
-            self.carts[self.num_carts] = []
-            
-            return self.num_carts
+            cart_id = self.num_carts
+
+        self.carts[cart_id] = []
+
+        thread_name = currentThread().getName()
+
+        if thread_name not in self.cons_names:
+            with self.lock_cons_id:
+                self.cons_id += 1
+                crt_id = self.cons_id
+
+            self.cons_names[thread_name] = "cons" + str(crt_id)
+        
+        return cart_id
 
     def add_to_cart(self, cart_id, product):
         """
@@ -91,15 +104,13 @@ class Marketplace:
 
         :returns True or False. If the caller receives False, it should wait and then try again
         """
-        # print("ma blochez la lock_remove in remove_from_cart")
-        with self.lock_remove:
-            # print("nu ma blochez")
+        with self.lock_sizes:
             if product not in self.products:
                 return False
 
             self.prod_q_sizes[self.producers[product]] -= 1
+            self.products.remove(product)
 
-        self.products.remove(product)
         self.carts[cart_id].append(product)
 
         return True
@@ -115,11 +126,9 @@ class Marketplace:
         :param product: the product to remove from cart
         """
         self.carts[cart_id].remove(product)
-        self.products.add(product)
+        self.products.append(product)
 
-        # print("ma blochez la lock_add in remove_from_cart")
-        with self.lock_add:
-            # print("nu ma blochez")
+        with self.lock_sizes:
             self.prod_q_sizes[self.producers[product]] += 1
 
     def place_order(self, cart_id):
@@ -129,4 +138,10 @@ class Marketplace:
         :type cart_id: Int
         :param cart_id: id cart
         """
-        return self.carts.pop(cart_id, None)
+        prod_list = self.carts.pop(cart_id, None)
+
+        for product in prod_list:
+            print("{} bought {}".format(self.cons_names[currentThread().getName()],
+                                        product), flush = True)
+
+        return prod_list

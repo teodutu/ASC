@@ -41,23 +41,16 @@ class Producer(Thread):
         self.id = self.marketplace.register_producer()
 
     def run(self):
-        # print("Producator:")
-        # print(self.products)
-        # print("")
-
         while True:
             for (product, num_prod, wait_time) in self.products:
                 i = 0
 
                 while i < num_prod:
-                    # print("{} publica {}".format(self.id, product))
                     ret = self.marketplace.publish(str(self.id), product)
 
                     if ret == True:
-                        # print("{} a publicat".format(self.id))
                         time.sleep(wait_time)
                         i += 1
                     else:
-                        # print("{} n-a publicat".format(self.id))
                         time.sleep(self.republish_wait_time)
 
