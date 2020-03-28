@@ -32,7 +32,7 @@ class Consumer(Thread):
         :type kwargs:
         :param kwargs: other arguments that are passed to the Thread's __init__()
         """
-        Thread.__init__(self, kwargs=kwargs)
+        Thread.__init__(self, **kwargs)
 
         self.carts = carts
         self.marketplace = marketplace

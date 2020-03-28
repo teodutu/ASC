@@ -27,14 +27,11 @@ class Marketplace:
         self.products = []
         self.carts = {}
         self.producers = {}
-        self.cons_names = {}
 
         self.num_carts = 0
-        self.cons_id = 0
 
         self.lock_sizes = Lock()
         self.lock_num_carts = Lock()
-        self.lock_cons_id = Lock()
         self.lock_register = Lock()
 
     def register_producer(self):
@@ -80,15 +77,6 @@ class Marketplace:
             cart_id = self.num_carts
 
         self.carts[cart_id] = []
-
-        thread_name = currentThread().getName()
-
-        if thread_name not in self.cons_names:
-            with self.lock_cons_id:
-                self.cons_id += 1
-                crt_id = self.cons_id
-
-            self.cons_names[thread_name] = "cons" + str(crt_id)
         
         return cart_id
 
@@ -141,7 +129,7 @@ class Marketplace:
         prod_list = self.carts.pop(cart_id, None)
 
         for product in prod_list:
-            print("{} bought {}".format(self.cons_names[currentThread().getName()],
-                                        product), flush = True)
+            print("{} bought {}".format(currentThread().getName(), product),
+                                        flush = True)
 
         return prod_list
