@@ -14,6 +14,7 @@ from tema.consumer import Consumer
 from tema.marketplace import Marketplace
 from tema.product import Product, Coffee, Tea
 
+
 def main():
     """
         Convert the market_configuration input file into specific models:

@@ -77,7 +77,7 @@ class Marketplace:
             cart_id = self.num_carts
 
         self.carts[cart_id] = []
-        
+
         return cart_id
 
     def add_to_cart(self, cart_id, product):
@@ -130,6 +130,6 @@ class Marketplace:
 
         for product in prod_list:
             print("{} bought {}".format(currentThread().getName(), product),
-                                        flush = True)
+                  flush=True)
 
         return prod_list

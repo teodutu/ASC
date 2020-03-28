@@ -6,7 +6,7 @@ Assignment 1
 March 2020
 """
 
-from threading import Thread, currentThread
+from threading import Thread
 import time
 
 
@@ -51,9 +51,9 @@ class Consumer(Thread):
                     ret = self.operations[operation["type"]](cart_id,
                                                              operation["product"])
 
-                    if ret == False:
-                        time.sleep(self.retry_wait_time)
-                    else:
+                    if ret is None or ret:
                         num_ops += 1
+                    else:
+                        time.sleep(self.retry_wait_time)
 
             self.marketplace.place_order(cart_id)
