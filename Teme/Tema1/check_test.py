@@ -40,6 +40,5 @@ def main():
     else:
         print(f"Test {testname}" + ":\t\t" + "FAILED")
 
-
 if __name__ == "__main__":
     main()

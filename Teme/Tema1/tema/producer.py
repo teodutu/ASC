@@ -18,6 +18,8 @@ class Producer(Thread):
     def __init__(self, products, marketplace, republish_wait_time, **kwargs):
         """
         Constructor.
+        Registers a producer in the Marketplace si stores the ID returned by the
+        Marketplace.
 
         @type products: List()
         @param products: a list of products that the producer will produce
@@ -30,7 +32,8 @@ class Producer(Thread):
         wait until the marketplace becomes available
 
         @type kwargs:
-        @param kwargs: other arguments that are passed to the Thread's __init__()
+        @param kwargs: other arguments that are passed to the Thread's
+        __init__()
         """
         Thread.__init__(self, **kwargs)
 
@@ -41,6 +44,15 @@ class Producer(Thread):
         self.prod_id = self.marketplace.register_producer()
 
     def run(self):
+        """
+        Adds all the products stored in the current producer to the Marketplace
+        in an infinite loop. Once all products have been published, the product
+        list is iterated again.
+
+        If the publish operation succeeds, the producer sleeps for the time
+        associated with the current poduct. Otherwise, it sleeps for
+        `republish_wait_time` seconds.
+        """
         while True:
             for (product, num_prod, wait_time) in self.products:
                 i = 0
