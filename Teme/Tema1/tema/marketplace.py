@@ -26,9 +26,11 @@ class Marketplace:
         self.products = set()
         self.carts = {}
         self.producers = {}
+        self.num_carts = 0
 
         self.lock_remove = Lock()
         self.lock_add = Lock()
+        self.lock_num_carts = Lock()
 
     def register_producer(self):
         """
@@ -71,10 +73,11 @@ class Marketplace:
 
         :returns an int representing the cart_id
         """
-        cart_id = len(self.carts)
-        self.carts[cart_id] = []
-
-        return cart_id
+        with self.lock_num_carts:
+            self.num_carts += 1
+            self.carts[self.num_carts] = []
+            
+            return self.num_carts
 
     def add_to_cart(self, cart_id, product):
         """
