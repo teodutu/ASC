@@ -48,7 +48,7 @@ class Consumer(Thread):
     def run(self):
         """
         Creates each new cart and performs the specified operations on this
-        cart. When all oprations have been performed, the order for the cart
+        cart. When all operations have been performed, the order for the cart
         is placed and the returned list is ignored as it is not useful.
 
         When a cart operation fails, the consumer sleeps for `retry_wait_time`

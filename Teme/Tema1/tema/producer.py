@@ -18,7 +18,7 @@ class Producer(Thread):
     def __init__(self, products, marketplace, republish_wait_time, **kwargs):
         """
         Constructor.
-        Registers a producer in the Marketplace si stores the ID returned by the
+        Registers a producer in the Marketplace and stores the ID returned by the
         Marketplace.
 
         @type products: List()

@@ -30,7 +30,7 @@ class Marketplace:
         self.prod_q_sizes = []  # a producer's number of items in the queue
         self.products = []  # the queue containing all available items
         self.carts = {}  # a dictionary of lists each representing a cart
-        self.producers = {}  # a dictionary mapping products to therir producers
+        self.producers = {}  # a dictionary mapping products to their producers
 
         self.num_carts = 0
 
@@ -53,8 +53,8 @@ class Marketplace:
     def publish(self, producer_id, product):
         """
         Adds the product provided by the producer to the marketplace.
-        Increases the producer's number of goods in the queue and sets marks
-        them as the producer of said good.
+        Increases the producer's number of goods in the queue and marks
+        it as the producer of the product given as parameter.
 
         @type producer_id: String
         @param producer_id: producer id
@@ -122,8 +122,8 @@ class Marketplace:
 
     def remove_from_cart(self, cart_id, product):
         """
-        Removes a product from cart. Reintroducs it into the list of all
-        available gooda and increments its producer's queue size.
+        Removes a product from cart. Reintroduce it into the list of all
+        available goods and increments its producer's queue size.
 
         @type cart_id: Int
         @param cart_id: id cart
