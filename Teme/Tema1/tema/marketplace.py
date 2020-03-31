@@ -44,6 +44,8 @@ class Marketplace:
         Returns an id for the producer that calls this.
         Each id is the producer's index in the list of queue sizes.
         """
+        # The length of the queue sizes may be changed by another registration
+        # before this one appends, thus a lock is needed.
         with self.lock_register:
             prod_id = len(self.prod_q_sizes)
             self.prod_q_sizes.append(0)
@@ -67,6 +69,9 @@ class Marketplace:
         """
         prod_id = int(producer_id)
 
+        # All actions are either thread safe (the `append()` method), or they
+        # aren't affected by other threads (they belong only to the current
+        # `prod_id`).
         if self.prod_q_sizes[prod_id] >= self.max_prod_q_size:
             return False
 
@@ -85,6 +90,9 @@ class Marketplace:
 
         @returns an int representing the cart_id
         """
+        # The number of carts must be incremented atomically and in order to
+        # decrease the amount of sequential code, the variable `cart_id` is used
+        # instead of the shared num_carts.
         with self.lock_num_carts:
             self.num_carts += 1
             cart_id = self.num_carts
@@ -109,6 +117,9 @@ class Marketplace:
         @returns True or False. If the caller receives False, it should wait
         and then try again
         """
+        # The lock is necessary so that multiple consumers don't try to remove
+        # the same product (they all pass the `if` statement with, say, just one
+        # product left in the list)
         with self.lock_sizes:
             if product not in self.products:
                 return False
@@ -134,6 +145,9 @@ class Marketplace:
         self.carts[cart_id].remove(product)
         self.products.append(product)
 
+        # Multiple consumers may try to remove a product belonging to the same
+        # producer, thus the incrementation of the producer's queue must be
+        # atomic.
         with self.lock_sizes:
             self.prod_q_sizes[self.producers[product]] += 1
 
