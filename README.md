@@ -8,4 +8,5 @@ Arhitectura Sistemelor de Calcul - UPB 2020
 4. **C**: Inspectare a cacheului folosind `valgrind --tool=cachegrind`
 5. **C**: Optimizarea operatiei de inmultire de matrice
 6. **C**: Profiling
+7. **CUDA**: Operatii simple pe vectori - pare caterinca
 
