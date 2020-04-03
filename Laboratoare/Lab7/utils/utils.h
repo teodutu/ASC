@@ -85,6 +85,9 @@ void check_task_2(float *a, float *b, float *c, int N) {
 		printf("\nCheck: WRONG!\n");
 }
 
+/**
+ * Copy-paste de la SO - pentru verificat valori de retur
+ */
 #define DIE(assertion, call_description)				\
 	do {								\
 		if (assertion) {					\
