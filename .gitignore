@@ -33,6 +33,7 @@
 
 # Other binary files
 *.zip
+*.tar.gz
 
 ## Python files
 # Byte-compiled / optimized / DLL files
