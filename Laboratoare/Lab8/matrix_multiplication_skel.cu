@@ -62,6 +62,7 @@ __global__ void matrix_multiply(float *ma, float *mb, float *mc, size_t width)
 		// TODO:
 		// wait until all data is loaded before allowing
 		// any thread in this block to continue
+		__syncthreads();
 	}
 
 	//TODO: write result in mc
