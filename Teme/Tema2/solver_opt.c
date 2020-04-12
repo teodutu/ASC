@@ -31,15 +31,25 @@ double* my_solver(int N, double *A, double* B)
 	double *A_t;
 	double *B_t;
 	double *AA;
+	register double *A_ptr, *A_t_ptr;
+	register double *B_ptr, *B_t_ptr;
 
 	allocate_matrices(N, &C, &A_t, &B_t, &AA);
 
 	/* Se transpun matricele A: A_t = A^t si B: B_t = B^t */
-	for (register int i = 0; i < N; ++i)
-		for (register int j = 0; j < N; ++j) {
-			A_t[j * N + i] = A[i * N + j];
-			B_t[j * N + i] = B[i * N + j];
+	for (register int i = 0; i < N; ++i) {
+		A_t_ptr = A + i;
+		B_t_ptr = B + i;
+
+		A_ptr = A + i * N;
+		B_ptr = B + i * N;
+
+		for (register int j = 0; j < N; ++j, A_t_ptr += N, B_ptr += N,
+			++A_ptr, ++B_ptr) {
+			*A_t_ptr = *A_ptr;
+			*B_t_ptr = *B_ptr;
 		}
+	}
 
 	/*
 	 * Initial C = B * A^t
