@@ -2,7 +2,7 @@
  * Tema 2 ASC
  * 2020 Spring
  */
-#include "utils.h"
+#include <stdlib.h>
 
 /*
  * Add your optimized implementation here
@@ -13,16 +13,20 @@ void allocate_matrices(int N, double **C, double **A_t, double **B_t,
 	register int size = N * N * sizeof(**C);
 
 	*C = malloc(size);
-	DIE(NULL == *C, "malloc C");
+	if (NULL == *C)
+		exit(EXIT_FAILURE);
 
 	*A_t = malloc(size);
-	DIE(NULL == *A_t, "malloc A_t");
+	if (NULL == *A_t)
+		exit(EXIT_FAILURE);
 
 	*B_t = malloc(size);
-	DIE(NULL == *B_t, "malloc B_t");
+	if (NULL == *B_t)
+		exit(EXIT_FAILURE);
 
 	*AA = malloc(size);
-	DIE(NULL == *AA, "malloc AA");
+	if (NULL == *AA)
+		exit(EXIT_FAILURE);
 }
 
 double* my_solver(int N, double *A, double* B)

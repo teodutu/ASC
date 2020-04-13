@@ -8,17 +8,6 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
-#define DIE(assertion, call_description)					\
-	do									\
-	{									\
-		if (assertion)							\
-		{								\
-			fprintf(stderr, "(%s:%u): ", __FILE__, __LINE__);	\
-			perror(call_description);				\
-			exit(EXIT_FAILURE);					\
-		}								\
-	} while (0)
-
 typedef double* (*Solver)(int, double *, double*);
 
 #define get_rand_double(limit) ((((double)rand()) / RAND_MAX) * (2 * limit) - limit)

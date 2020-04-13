@@ -1,7 +1,7 @@
 CC=gcc
 CFLAGS=-Wall -Werror -O0
 OPT_CFLAGS=-Wall -Werror -O3
-EXTRA_OPT_CFLAGS=
+EXTRA_OPT_CFLAGS=-ffast-math
 LIBDIRS=
 LIBS=
 
