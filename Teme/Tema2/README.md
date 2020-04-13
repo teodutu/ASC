@@ -10,6 +10,17 @@ Run=./tema2_neopt: N=1200: Time=15.666240
 Run=./tema2_neopt: N=1400: Time=24.972095
 Run=./tema2_neopt: N=1600: Time=37.537521
 ```
+## opt_blas
+Timpi nehalem:
+```
+Run=./tema2_blas: N=400: Time=0.049600
+Run=./tema2_blas: N=600: Time=0.126815
+Run=./tema2_blas: N=800: Time=0.203301
+Run=./tema2_blas: N=1000: Time=0.384593
+Run=./tema2_blas: N=1200: Time=0.654859
+Run=./tema2_blas: N=1400: Time=1.029091
+Run=./tema2_blas: N=1600: Time=1.523466
+```
 
 ## opt_f
 Timpi nehalem:
