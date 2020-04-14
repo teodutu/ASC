@@ -1,9 +1,9 @@
 CC=gcc
 CFLAGS=-Wall -Werror -O0
 OPT_CFLAGS=-Wall -Werror -O3
-EXTRA_OPT_CFLAGS=-ffast-math
-LIBDIRS=
-LIBS=
+EXTRA_OPT_CFLAGS=-fno-signaling-nans -fno-trapping-math -ffinite-math-only -fno-signed-zeros -fassociative-math -fexcess-precision=fast -mfpmath=sse
+LIBDIRS=-L/usr/lib64/atlas
+LIBS=-lsatlas
 
 all: compare tema2_blas tema2_neopt tema2_opt_m tema2_opt_f tema2_opt_f_extra
 
