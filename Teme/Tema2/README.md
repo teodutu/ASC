@@ -42,13 +42,19 @@ de forma matricei `A` si obtine urmatoarele performante.
 
 ### Timpi de rulare ibm-nehalem.q
 ```
-Run=./tema2_neopt: N=400: Time=0.678856
-Run=./tema2_neopt: N=600: Time=2.132154
-Run=./tema2_neopt: N=800: Time=5.137768
-Run=./tema2_neopt: N=1000: Time=9.706286
-Run=./tema2_neopt: N=1200: Time=16.770065
-Run=./tema2_neopt: N=1400: Time=27.576996
-Run=./tema2_neopt: N=1600: Time=47.555859
+Run=./tema2_neopt: N=400: Time=0.679213
+Run=./tema2_neopt: N=500: Time=1.227661
+Run=./tema2_neopt: N=600: Time=2.100510
+Run=./tema2_neopt: N=700: Time=3.340235
+Run=./tema2_neopt: N=800: Time=5.029776
+Run=./tema2_neopt: N=900: Time=7.129861
+Run=./tema2_neopt: N=1000: Time=9.598484
+Run=./tema2_neopt: N=1100: Time=13.080262
+Run=./tema2_neopt: N=1200: Time=16.871584
+Run=./tema2_neopt: N=1300: Time=21.938412
+Run=./tema2_neopt: N=1400: Time=27.602604
+Run=./tema2_neopt: N=1500: Time=35.962009
+Run=./tema2_neopt: N=1600: Time=47.229889
 ```
 
 ## opt_blas
@@ -60,40 +66,49 @@ in acest caz) si apoi inmulteste rezultatul cu alta matrice (`B` sau `A`). Dupa
 ce se calculeaza `B * A'` si `A^2 * B`, aceste rezultate sunt adunate "de mana",
 intrucat _BLAS_ nu pune la dispozitie o functie care face acest lucru :(.
 
+In consecinta, timpii obtinuti cu aceasta metoda sunt:
+```
+Run=./tema2_blas: N=400: Time=0.048393
+Run=./tema2_blas: N=500: Time=0.076522
+Run=./tema2_blas: N=600: Time=0.127462
+Run=./tema2_blas: N=700: Time=0.142127
+Run=./tema2_blas: N=800: Time=0.201365
+Run=./tema2_blas: N=900: Time=0.288280
+Run=./tema2_blas: N=1000: Time=0.385960
+Run=./tema2_blas: N=1100: Time=0.510406
+Run=./tema2_blas: N=1200: Time=0.663962
+Run=./tema2_blas: N=1300: Time=0.831795
+Run=./tema2_blas: N=1400: Time=1.029079
+Run=./tema2_blas: N=1500: Time=1.268744
+Run=./tema2_blas: N=1600: Time=1.523858
+```
 **Mentiune:** pe cat de performanta este biblioteca, pe atat de neintuitiva este
 conventia de nume pe care o foloseste. Mi-a luat ceva sa ma prind ca `dtrmm`
-provine de la **D**ouble **Tr**iangular **M**atrix **M**ultiply...
-
-### Timpi de rulare ibm-nehalem.q
-```
-Run=./tema2_blas: N=400: Time=0.028394
-Run=./tema2_blas: N=600: Time=0.088466
-Run=./tema2_blas: N=800: Time=0.202133
-Run=./tema2_blas: N=1000: Time=0.386675
-Run=./tema2_blas: N=1200: Time=0.656173
-Run=./tema2_blas: N=1400: Time=1.031261
-Run=./tema2_blas: N=1600: Time=1.524863
-```
+provine de la **d**ouble **tr**iangular **m**atrix **m**ultiply...
 
 ## opt_f
 Aceasta implementare este cea neoptimizata, compilata cu flagul `-O3`. Pentru
 comparatie cu `opt_f_extra`, am notat timpii acestei metode:
-
-### Timpi de rulare ibm-nehalem.q
 ```
-Run=./tema2_opt_f: N=400: Time=0.148869
-Run=./tema2_opt_f: N=600: Time=0.324037
-Run=./tema2_opt_f: N=800: Time=0.828579
-Run=./tema2_opt_f: N=1000: Time=1.563727
-Run=./tema2_opt_f: N=1200: Time=2.821983
-Run=./tema2_opt_f: N=1400: Time=4.659523
-Run=./tema2_opt_f: N=1600: Time=8.720551
+Run=./tema2_opt_f: N=400: Time=0.146516
+Run=./tema2_opt_f: N=500: Time=0.180828
+Run=./tema2_opt_f: N=600: Time=0.325335
+Run=./tema2_opt_f: N=700: Time=0.509183
+Run=./tema2_opt_f: N=800: Time=0.832792
+Run=./tema2_opt_f: N=900: Time=1.172873
+Run=./tema2_opt_f: N=1000: Time=1.552784
+Run=./tema2_opt_f: N=1100: Time=2.106394
+Run=./tema2_opt_f: N=1200: Time=2.826088
+Run=./tema2_opt_f: N=1300: Time=3.630285
+Run=./tema2_opt_f: N=1400: Time=4.723751
+Run=./tema2_opt_f: N=1500: Time=6.380574
+Run=./tema2_opt_f: N=1600: Time=8.688950
 ```
 
 ## opt_f_extra
 Am plecat de la flagul `-ffast-math`. Folosind documentatoa gcc-ului[1], am
-"descompus" aceasta grupare de flaguri in flagurile care o compun. Dintre
-acestea, le-am ales pe acelea care influenteaza problema curenta:
+"desfacut" aceast flag in flagurile care il compun. Dintre acestea, le-am ales
+pe acelea care influenteaza problema curenta:
 
 ### -fno-signed-zeros
 Conform standardului _IEEE_, exista `-0.0` si `+0.0` si se comporta diferit in
@@ -126,22 +141,29 @@ instructiuni noi (_Streaming SIMD Extensionss_) pentru calculele in virgula
 mobila. Aceasta extensie este utila pentru problema curenta, deoarece operatia
 de inmultire de matrice se preteaza unor sisteme (sau extensii) SIMD.
 
-Prin urmare, timpii obtinuti in urma compilarii cu aceste flaguri sunt **cu
-aproximativ 16% mai buni** decat cei obtinuti doar cu flagul `-O3`:
+Prin urmare, timpul obtinut in urma compilarii cu aceste flaguri este, pentru
+`N = 1200`, **cu aproximativ 16% mai bun** decat cel obtinutl doar cu flagul
+`-O3`:
 ```
-Run=./tema2_opt_f_extra: N=400: Time=0.133441
-Run=./tema2_opt_f_extra: N=600: Time=0.343231
-Run=./tema2_opt_f_extra: N=800: Time=0.698895
-Run=./tema2_opt_f_extra: N=1000: Time=1.315393
-Run=./tema2_opt_f_extra: N=1200: Time=2.355023
-Run=./tema2_opt_f_extra: N=1400: Time=4.012690
-Run=./tema2_opt_f_extra: N=1600: Time=7.574487
+Run=./tema2_opt_f_extra: N=400: Time=0.132148
+Run=./tema2_opt_f_extra: N=500: Time=0.142979
+Run=./tema2_opt_f_extra: N=600: Time=0.341052
+Run=./tema2_opt_f_extra: N=700: Time=0.755240
+Run=./tema2_opt_f_extra: N=800: Time=0.702910
+Run=./tema2_opt_f_extra: N=900: Time=0.920976
+Run=./tema2_opt_f_extra: N=1000: Time=1.348005
+Run=./tema2_opt_f_extra: N=1100: Time=1.731644
+Run=./tema2_opt_f_extra: N=1200: Time=2.339153
+Run=./tema2_opt_f_extra: N=1300: Time=2.933369
+Run=./tema2_opt_f_extra: N=1400: Time=3.930340
+Run=./tema2_opt_f_extra: N=1500: Time=5.403199
+Run=./tema2_opt_f_extra: N=1600: Time=7.610432
 ```
 
 ## opt_m
 S-au folosit 3 tipuri de optimizari.
 
-### Fortarea localitatii spatiale
+### Obtinerea localitatii spatiale
 In cadrul algoritmului clasic de inmultire de matrice, operantul din dreapta
 este parcurs pe coloane, ceea ce nu confera algoritmului localitate spatiala,
 ceea ce va rezulta intr-un numar mare de cache missuri. Solutia, asa cum am
@@ -171,14 +193,34 @@ pentru a nu aparea intarzieri din cauza comutarilor intre acestea.
 
 Astfel, se obtin urmatorii timpi de executie:
 ```
-Run=./tema2_opt_m: N=400: Time=0.175844
-Run=./tema2_opt_m: N=600: Time=0.423902
-Run=./tema2_opt_m: N=800: Time=0.996612
-Run=./tema2_opt_m: N=1000: Time=1.930095
-Run=./tema2_opt_m: N=1200: Time=3.338577
-Run=./tema2_opt_m: N=1400: Time=5.412837
-Run=./tema2_opt_m: N=1600: Time=8.424620
+Run=./tema2_opt_m: N=400: Time=0.183190
+Run=./tema2_opt_m: N=500: Time=0.248208
+Run=./tema2_opt_m: N=600: Time=0.427608
+Run=./tema2_opt_m: N=700: Time=0.671219
+Run=./tema2_opt_m: N=800: Time=1.001230
+Run=./tema2_opt_m: N=900: Time=1.413819
+Run=./tema2_opt_m: N=1000: Time=1.931140
+Run=./tema2_opt_m: N=1100: Time=2.565698
+Run=./tema2_opt_m: N=1200: Time=3.345301
+Run=./tema2_opt_m: N=1300: Time=4.279649
+Run=./tema2_opt_m: N=1400: Time=5.463564
+Run=./tema2_opt_m: N=1500: Time=6.794032
+Run=./tema2_opt_m: N=1600: Time=8.437422
 ```
+## Grafice
+Graficele timpilor de executie in functie de `N` se pot observa ruland scriptul
+`plot_graphics.py` astfel:
+```bash
+$ python3 plot_graphics.py
+```
+
+## Comparatii si concluzii
+Analizand graficele create de scriptul de mai sus, precum si timpii mentionati
+la fiecare exercitiu, putem face urmatoarele observatii pe baza timpilor
+obtinuti pentru `1200 <= N <= 1600`:
+- `opt_m` este, in medie, cu **84,69%** mai rapid decat `neopt`
+- `opt_f_extra` este, in medie, cu **16,19%** mai rapid decat `opt_f`
+- `blas` este, in medie, cu **74.71%** mai rapid decat `opt_f_extra`
 
 ## Bibliografie
 - [0] https://developer.apple.com/documentation/accelerate/1513132-cblas_dtrmm?language=objc
