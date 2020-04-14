@@ -27,7 +27,8 @@ void allocate_matrices(int N, double **C, double **BA_t, double **AA,
 		exit(EXIT_FAILURE);
 }
 
-double *my_solver(int N, double *A, double* B) {
+double *my_solver(int N, double *A, double* B)
+{
 	double *C;
 	double *BA_t;
 	double *AA;
@@ -36,7 +37,7 @@ double *my_solver(int N, double *A, double* B) {
 
 	allocate_matrices(N, &C, &BA_t, &AA, &AAB);
 
-	/* BA_t = B * A_t */
+	/* BA_t = B * A' */
 	for (i = 0; i < N; i++)
 		for (j = 0; j < N; j++)
 			for (k = j; k < N; k++)
@@ -57,6 +58,7 @@ double *my_solver(int N, double *A, double* B) {
 				AAB[i * N + j] += AA[i * N + k]
 					* B[k * N + j];
 
+	/* C = B * A' + A^2 * B = BA_t + AAB */
 	for (i = 0; i < N; i++)
 		for (j = 0; j < N; j++)
 			C[i * N + j] = BA_t[i * N + j] + AAB[i * N + j];
