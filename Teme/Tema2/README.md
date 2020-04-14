@@ -38,9 +38,7 @@ element din `BA_t[i][j]`: suma va incepe de la coloana `i`, intrucat
 
 ## neopt
 Metoda aplica optimizarile generala de mai sus, care tin cont in mare parte doar
-de forma matricei `A` si obtine urmatoarele performante.
-
-### Timpi de rulare ibm-nehalem.q
+de forma matricei `A` si obtine urmatoarele performante:
 ```
 Run=./tema2_neopt: N=400: Time=0.679213
 Run=./tema2_neopt: N=500: Time=1.227661
@@ -214,13 +212,25 @@ Graficele timpilor de executie in functie de `N` se pot observa ruland scriptul
 $ python3 plot_graphics.py
 ```
 
+Datele plotate sunt incarcate de script din fisierul
+`ibm-nehalem.q_runtimes.json`. De asemenea, plotul ce contine graficele se afla
+salvat in fisierul `performance_graphics.png`:
+![Graficele cu timpii metodelor implementate](performance_graphics.png)
+
 ## Comparatii si concluzii
 Analizand graficele create de scriptul de mai sus, precum si timpii mentionati
 la fiecare exercitiu, putem face urmatoarele observatii pe baza timpilor
 obtinuti pentru `1200 <= N <= 1600`:
 - `opt_m` este, in medie, cu **84,69%** mai rapid decat `neopt`
 - `opt_f_extra` este, in medie, cu **16,19%** mai rapid decat `opt_f`
-- `blas` este, in medie, cu **74.71%** mai rapid decat `opt_f_extra`
+- `blas` este, in medie, cu **74,71%** mai rapid decat `opt_f_extra`
+
+Din graficele de mai sus se remarca performantele similare, dar totusi cu
+diferente sesizabile intre ele ale metodelor `opt_m`, `opt_f`, `opt_f_extra`,
+intrucat acestea se bazeaza mai mult sau mai putin pe aceeasi idee de
+implementare.
+
+Graficul metodei `blas`, in schimb, este aproape o dreapta :)).
 
 ## Bibliografie
 - [0] https://developer.apple.com/documentation/accelerate/1513132-cblas_dtrmm?language=objc
