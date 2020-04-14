@@ -1,8 +1,14 @@
-7
+13
 400 123 out/out1
-600 123 out/out1
-800 456 out/out2
-1000 456 out/out2
-1200 789 out/out3
-1400 789 out/out3
-1600 789 out/out3
+500 123 out/out2
+600 123 out/out3
+700 123 out/out4
+800 456 out/out5
+900 456 out/out6
+1000 456 out/out7
+1100 456 out/out8
+1200 789 out/out9
+1300 789 out/out10
+1400 789 out/out11
+1500 789 out/out12
+1600 789 out/out13
