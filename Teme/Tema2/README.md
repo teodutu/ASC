@@ -1,33 +1,34 @@
 # Tema 2 - Optimizarea inmultirilor de matrice
+**Conventie:** Se va folosi simbolul din _Matlab/Octave_ pentru o matrice
+transpusa (`'`), pentru claritate si simplitate.
+
 Se implementeaza operatia `B * A' + A^2 * B` cu diverse optimizari si se compara
 performantele.
 
 ## Optimizari generale ale algoritmului de inmultire de matrice
 Dat fiind ca matricea `A` este superior triunghiulara, indicii dupa care se va
 parcurge aceasta matrice au valori initiale si finale modificate, pentru a nu
-efectua operatii inutile (inmultiri cu 0). Aceste optimizari sunt aplicate atat
-in varianta optimizata, cat si in cea neoptimizata a rezolvarii.
-
-**Conventie:** Se va folosi simbolul din _Matlab/Octave_ pentru o matrice
-transpusa ('), pentru claritate si simplitate.
+efectua operatii inutile (inmultiri cu `0`). Aceste optimizari sunt aplicate
+atat in varianta `opt_m`, cat si in cea `neopt` a rezolvarii.
 
 ### BA_t = B * A'
 In primul rand, nu are sens transpunerea lui `A`. Parcurgerea coloanelor lui
 `A'` este echivalenta cu parcurgerea liniilor lui `A`, in cadrul careia, pe
-deasupra, vor avea loc mai multe cache missuri datorita localitatii spatiale a
-datelor. Astfel, `B * A'` va deveni `B * A`, in care `A` se parcurge pe linii.
+deasupra, vor avea loc mai multe cache hituri datorita localitatii spatiale a
+datelor. Astfel, `B * A'` va deveni `B * A`, in care `A` se parcurge pe linii,
+notat de acum ca `B * A(pe linii)`
 
 In al doilea rand, pentru a calcula `BA_t[i][j]`, nu este necesara calcularea
 intregii sume a produselor elementelor de pe linia `i` a lui `B` cu elementele
 de pe linia `j` a lui `A`, deoarece primele `j - 1` elemente ale acesteia din
-urma sunt `0`. Este de ajuns sa se faca operatia pentru elementele de pe linia
-`j` a lui `A`, **incepand de la coloana j**.
+urma sunt `0`. Este de ajuns sa se efectueze operatia pentru elementele de pe
+linia `j` a lui `A`, incepand de la coloana j.
 
 ## AA = A^2
 Produsul a doua matrice simetrice este tot o matrice simetrica. Asadar, nu ne
 intereseaza decat elementele `AA[i][j]`, cu `j >= i`. In mod similar optimizarii
 de la inmultirea `B * A'`, suma de produse dintre elementele de pe linii si de
-pe coloane ale matricei, va incepe la indicele `i`.
+pe coloane ale matricei va incepe de la indicele `i`, nu de la `0`.
 
 ## AAB = A^2 * B = AA * B
 Matricea `AA` a fost explicata mai sus. Optimizarea de indici in cadrul
@@ -104,9 +105,9 @@ Run=./tema2_opt_f: N=1600: Time=8.688950
 ```
 
 ## opt_f_extra
-Am plecat de la flagul `-ffast-math`. Folosind documentatoa gcc-ului[1], am
-"desfacut" aceast flag in flagurile care il compun. Dintre acestea, le-am ales
-pe acelea care influenteaza problema curenta:
+Am plecat de la flagul `-ffast-math`. Folosind documentatoa gcc-ului[1],[2], am
+"descompus" aceast flag in flagurile pe care le activeaza. Dintre acestea, le-am
+ales pe acelea care influenteaza problema curenta:
 
 ### -fno-signed-zeros
 Conform standardului _IEEE_, exista `-0.0` si `+0.0` si se comporta diferit in
@@ -114,7 +115,7 @@ calcule. Daca se adauga acest flag, semnul lui `0.0` nu mai este relevant, iar
 pentru problema noastra, nu este relevant.
 
 ### -ffinite-math-only
-Presune ca nu se vor face operatii cu valori `NaN` si/sau `+/-Inf` si permite
+Presupune ca nu se vor face operatii cu valori `NaN` si/sau `+/-Inf` si permite
 optimizarea acestora in consecinta. Cum aceste valori nu se vor intalni printre
 rezultatele obtinute (se garanteaza ca datele sunt corecte), se poate face
 optimizarea.
@@ -140,7 +141,7 @@ mobila. Aceasta extensie este utila pentru problema curenta, deoarece operatia
 de inmultire de matrice se preteaza unor sisteme (sau extensii) SIMD.
 
 Prin urmare, timpul obtinut in urma compilarii cu aceste flaguri este, pentru
-`N = 1200`, **cu aproximativ 16% mai bun** decat cel obtinutl doar cu flagul
+`N = 1200`, **cu aproximativ 16% mai bun** decat cel obtinut doar cu flagul
 `-O3`:
 ```
 Run=./tema2_opt_f_extra: N=400: Time=0.132148
@@ -165,29 +166,31 @@ S-au folosit 3 tipuri de optimizari.
 In cadrul algoritmului clasic de inmultire de matrice, operantul din dreapta
 este parcurs pe coloane, ceea ce nu confera algoritmului localitate spatiala,
 ceea ce va rezulta intr-un numar mare de cache missuri. Solutia, asa cum am
-mentionat si la inceputul README-ului, este sa transpunem termenul drept si sa-l
-parcurgem aceasta matrice transpusa pe linii. Acest lucru s-a facut pentru
-inmultirile `B * A' <=> B * A(pe linii)`, `A* A <=> A * A'(pe linii)` si
+mentionat si la inceputul README-ului, este sa transpunem matricea din dreapta
+si sa o parcurgem pe linii. Acest lucru s-a facut pentru inmultirile
+`B * A' <=> B * A(pe linii)`, `A* A <=> A * A'(pe linii)` si
 `A^2 * B <=> A^2 * B'(pe linii)`.
 
 ### Eliminarea constantelor din bucle
-In mod similar implementarilor din _Laboratorul 5_[2], s-a renuntat la calculul
-indecsilor de tipul `i * N + j` prin folosire apointerilor, care sunt
+In mod similar implementarilor din _Laboratorul 5_[3], s-a renuntat la calculul
+indecsilor de tipul `i * N + j` prin folosirea pointerilor, care sunt
 incrementati pentru fiecare pozitie din matrice sau pentru fiecare termen din
-suma, astfel scazand numarul total de operaii (nu in virgula mobila) facute de
-compilator.
+suma, astfel scazand numarul total de operatii (nu in virgula mobila) facute de
+procesor, care acum nu mai trebuie sa inmulteasca `i * N` atunci cand nu este
+nevoie.
 
 Aceasta procedura s-a aplicat tuturor celor 3 inmultiri de matrice (`B * A'`,
-`A * A` si `(A * A) * B`), cat si pentru transpunerile matricelor `A` si `B`
-descrise mai sus.
+`A * A` si `(A * A) * B`), cat si pentru operatiile de transpunere a matricelor
+`A` si `B` descrise mai sus.
 
 ### Folosirea registrelor procesorului
 Toate datele necesare unei inmultiri de matrice (indicii pentru pozitiile din
 matrice ale operanzilor, pointerii mentionati mai sus) sunt retinute direct in
-registrele procesorului pentru a se elimina overheadurile de acces la memorie
-(fie ea si cache) pentru aceste variabile. Intrucat sistemul de pe
-_ibm-nehalem.q_ este pe 64 de biti, numarul de registre este suficient de mare
-pentru a nu aparea intarzieri din cauza comutarilor intre acestea.
+registrele procesorului (folosind tipuri de date `register <tip>`) pentru a se
+elimina overheadurile de acces la memorie (fie ea si cache) pentru aceste
+variabile. Intrucat sistemul de pe _ibm-nehalem.q_ este pe 64 de biti, numarul
+de registre este suficient de mare pentru a nu aparea intarzieri din cauza
+comutarilor intre acestea.
 
 Astfel, se obtin urmatorii timpi de executie:
 ```
@@ -213,14 +216,15 @@ $ python3 plot_graphics.py
 ```
 
 Datele plotate sunt incarcate de script din fisierul
-`ibm-nehalem.q_runtimes.json`. De asemenea, plotul ce contine graficele se afla
-salvat in fisierul `performance_graphics.png`:
+`ibm-nehalem.q_runtimes.json`, care contine timpii din acest _README_. De
+asemenea, plotul ce contine graficele se afla salvat in fisierul
+`performance_graphics.png`:
 ![Graficele cu timpii metodelor implementate](performance_graphics.png)
 
 ## Comparatii si concluzii
 Analizand graficele create de scriptul de mai sus, precum si timpii mentionati
-la fiecare exercitiu, putem face urmatoarele observatii pe baza timpilor
-obtinuti pentru `1200 <= N <= 1600`:
+la fiecare exercitiu, putem face urmatoarele observatii pe baza performantelor
+obtinute pentru `1200 <= N <= 1600`:
 - `opt_m` este, in medie, cu **84,69%** mai rapid decat `neopt`
 - `opt_f_extra` este, in medie, cu **16,19%** mai rapid decat `opt_f`
 - `blas` este, in medie, cu **74,71%** mai rapid decat `opt_f_extra`
@@ -235,4 +239,5 @@ Graficul metodei `blas`, in schimb, este aproape o dreapta :)).
 ## Bibliografie
 - [0] https://developer.apple.com/documentation/accelerate/1513132-cblas_dtrmm?language=objc
 - [1] https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html
-- [2] https://ocw.cs.pub.ro/courses/asc/laboratoare/05#detectarea_constantelor_din_bucle
+- [2] https://linux.die.net/man/1/gcc
+- [3] https://ocw.cs.pub.ro/courses/asc/laboratoare/05#detectarea_constantelor_din_bucle

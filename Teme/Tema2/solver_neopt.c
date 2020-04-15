@@ -4,8 +4,9 @@
  */
 #include <stdlib.h>
 
-/*
- * Add your unoptimized implementation here
+/** 
+ * Functia aloca matricele C, BA_t = B * A', AA = A^2 si AAB = A^2 * B,
+ * verificand daca au avut loc erori.
  */
 void allocate_matrices(int N, double **C, double **BA_t, double **AA,
 	double **AAB)

@@ -7,8 +7,8 @@
 
 #include "cblas.h"
 
-/* 
- * Add your BLAS implementation here
+/** 
+ * Functia aloca matricele C si AA = A^2, verificand daca au avut loc erori.
  */
 void allocate_matrices(int N, double **C, double **AA)
 {
