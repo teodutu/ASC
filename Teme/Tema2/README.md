@@ -5,6 +5,9 @@ transpusa (`'`), pentru claritate si simplitate.
 Se implementeaza operatia `B * A' + A^2 * B` cu diverse optimizari si se compara
 performantele.
 
+Pentru a se masura mai bine performantele, s-au adaugat alte 10 inputuri in
+fisierul `input_extended`, care a fost folosit pentru masuratori
+
 ## Optimizari generale ale algoritmului de inmultire de matrice
 Dat fiind ca matricea `A` este superior triunghiulara, indicii dupa care se va
 parcurge aceasta matrice au valori initiale si finale modificate, pentru a nu
@@ -232,7 +235,9 @@ obtinute pentru `1200 <= N <= 1600`:
 Din graficele de mai sus se remarca performantele similare, dar totusi cu
 diferente sesizabile intre ele ale metodelor `opt_m`, `opt_f`, `opt_f_extra`,
 intrucat acestea se bazeaza mai mult sau mai putin pe aceeasi idee de
-implementare.
+implementare. De asemenea se remarca faptul ca pentru valori mari ale lui `N`
+(`1500`, `1600`), performantele metodei `opt_m` ajung sa se apropie si chiar sa
+le depaseasca pe cele ale metodei `opt_f`.
 
 Graficul metodei `blas`, in schimb, este aproape o dreapta :)).
 
