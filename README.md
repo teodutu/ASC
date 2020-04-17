@@ -10,3 +10,6 @@ Arhitectura Sistemelor de Calcul - UPB 2020
 6. **C**: Profiling
 7. **CUDA**: Operatii simple pe vectori - pare caterinca
 8. **CUDA**: Inmultire de matrice si masurare performante
+9. **CUDA**: Paralelism dinamic, operatii atomice si memorie "partajata" intre
+CPU si GPU
+
