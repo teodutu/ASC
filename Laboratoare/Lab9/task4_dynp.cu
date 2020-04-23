@@ -9,19 +9,18 @@ using namespace std;
 
 // TODO
 // workers will compute sum on first N elements
-__global__ void worker(int *data, int *result)
+__global__ void worker(int *result, int *data, int pos)
 {
 	// TODO, compute sum and store in result
-	for (int i = 0; i != data[threadIdx.x]; ++i)
-		result[threadIdx.x] += data[i];
+	atomicAdd(&result[pos], data[threadIdx.x]);
 }
 
 // TODO
 // master will launch threads to compute sum on first N elements
-__global__ void master(int N, int *data, int *result)
+__global__ void master(int *result, int *data)
 {
 	// TODO, schedule worker threads
-	worker<<<1, N>>>(data, result);
+	worker<<<1, data[threadIdx.x]>>>(result, data, threadIdx.x);
 }
 
 void generateData(int *data, int num) {
@@ -71,7 +70,7 @@ int main(int argc, char *argv[])
 	generateData(data, NUM_ELEM);
 
 	// TODO schedule master threads and pass data/result/num 
-	master<<< 1, 1 >>>(NUM_ELEM, data, result);
+	master<<<1, NUM_ELEM>>>(result, data);
 	cudaDeviceSynchronize();
 
 	print(data, NUM_ELEM);
