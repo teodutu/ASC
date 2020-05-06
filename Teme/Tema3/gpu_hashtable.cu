@@ -10,24 +10,29 @@
 #define MAX_LOAD_FACTOR		.9f
 #define MIN_LOAD_FACTOR		.85f
 
-/* INIT HASH
- */
-__device__ size_t computeHash(int key)
+
+// Calculeaza hash-ul unei chei prin algoritmul descrisa aici
+// https://gist.github.com/badboy/6267743
+// Dintre functiile propuse de Bob Jenkins, aceasta avea
+// performantele cele mai bune
+static __device__ size_t computeHash(int key)
 {
 	size_t hash = (size_t)key;
 
-	hash = ~hash + (hash << 15); // key = (key << 15) - key - 1;
+	hash = ~hash + (hash << 15);
 	hash = hash ^ (hash >> 12);
 	hash = hash + (hash << 2);
 	hash = hash ^ (hash >> 4);
-	hash = hash + (hash << 3) + (hash << 11);
+	hash = (hash + (hash << 3)) + (hash << 11);
 	hash = hash ^ (hash >> 16);
 
 	return hash;
 }
 
-__global__ void kernel_insert(Entry* hashMap, int* devKeys, int* devValues,
-	size_t capacity)
+// Kernelul se ocupa cu inserararea unui singur element in hahstable folosind
+// tehnica "linear probing".
+static __global__ void kernel_insert(Entry* hashMap, int* devKeys,
+	int* devValues, int* numUpdates, size_t capacity)
 {
 	int oldKey;
 	bool inserted = false;
@@ -40,22 +45,36 @@ __global__ void kernel_insert(Entry* hashMap, int* devKeys, int* devValues,
 		return;
 	}
 
+	// se calculeaza hashul initial
 	hash = computeHash(devKeys[idx]) % capacity;
 	insertedEntry = {devKeys[idx], devValues[idx]};
 
+	// Se parcurg indecsii in ordine incepand de la `hash` si se cauta o pozitie
+	// libera sau pe care se afla aceeasi cheie (caz de update)
 	for (; !inserted; hash = (hash + 1) % capacity)
 	{
+		// Cheia veche se schimba cu cea noua doar daca aceasta era KEY_INVALID
+		// (0).
 		oldKey = atomicCAS(&hashMap[hash].key, KEY_INVALID, insertedEntry.key);
 
+		// In situatia in care cheia era `KEY_INVALID` (locul era liber) sau era
+		// aceeasi cu noua cheie (update), valoarea se modifica
 		if (KEY_INVALID == oldKey || insertedEntry.key == oldKey)
 		{
+			if (oldKey == insertedEntry.key)
+			{
+				atomicAdd(numUpdates, 1);
+			}
+
 			hashMap[hash].value = insertedEntry.value;
 			inserted = true;
 		}
 	}
 }
 
-__global__ void kernel_search(Entry* hashMap, int* devKeys, int* values,
+// Kernelul cauta sa puna in vectorul `values` valoarea corespunzatoare cheii
+// indexului sau
+static __global__ void kernel_search(Entry* hashMap, int* devKeys, int* values,
 	size_t capacity, int numKeys)
 {
 	bool found = false;
@@ -67,8 +86,11 @@ __global__ void kernel_search(Entry* hashMap, int* devKeys, int* values,
 		return;
 	}
 
+	// Initial se calculeaza hashul cheii care ii revine threadului curent.
 	hash = computeHash(devKeys[idx]) % capacity;
 
+	// Exact ca la inert, se parcurg indecsii pe rand, cautandu-se cel la care
+	// este stocata de fapt cheia.
 	for (; !found; hash = (hash + 1) % capacity)
 	{
 		if (devKeys[idx] == hashMap[hash].key)
@@ -79,7 +101,11 @@ __global__ void kernel_search(Entry* hashMap, int* devKeys, int* values,
 	}
 }
 
-__global__ void kernel_rehash(Entry* resizedHashMap, Entry* hashMap,
+// Kernelul rehashuieste cheia din bucketurile vechi care corespunde fiecarui
+// thread si o plaseaza impreuna cu valoarea sa in noul set de bucketuri.
+// Daca cheia la pozitia care ii corespunde, threadul nu gaseste un element,
+// acesta se termina imediat. 
+static __global__ void kernel_rehash(Entry* resizedHashMap, Entry* hashMap,
 	size_t initialCapacity, int finalCapacity)
 {
 	bool reinserted = false;
@@ -93,6 +119,7 @@ __global__ void kernel_rehash(Entry* resizedHashMap, Entry* hashMap,
 
 	hash = computeHash(hashMap[idx].key) % finalCapacity;
 
+	// Se urmeaza aceeasi logica de la `kernel_insert`.
 	for (; !reinserted; hash = (hash + 1) % finalCapacity)
 	{
 		if (KEY_INVALID ==
@@ -104,6 +131,8 @@ __global__ void kernel_rehash(Entry* resizedHashMap, Entry* hashMap,
 	}
 }
 
+/* INIT HASH
+ */
 GpuHashTable::GpuHashTable(int size) :
 	capacity(size), size(0)
 {
@@ -165,8 +194,9 @@ bool GpuHashTable::insertBatch(int* keys, int* values, int numKeys)
 	cudaError_t ret;
 	int numBlocks;
 	int numThreads;
-	int* devKeys;
-	int* devValues;
+	int* numUpdates;  // cateva chei vor fi update-uri
+	int* devKeys;  // se vor copia cheile pe GPU
+	int* devValues;  // aceeasi copiere se face si pentru valori
 	size_t numBytes = numKeys * sizeof(*devKeys);
 
 	ret = cudaMalloc(&devKeys, numBytes);
@@ -181,27 +211,36 @@ bool GpuHashTable::insertBatch(int* keys, int* values, int numKeys)
 	ret = cudaMemcpy(devValues, values, numBytes, cudaMemcpyHostToDevice);
 	ASSERT(ret, "cudaMemcpy(devValues) failed", return false);
 
+	ret = cudaMallocManaged(&numUpdates, sizeof(*numUpdates));
+	ASSERT(ret, "cudaMallocManaged(numUpdates) failed", return false);
+
+	// Hashtable-ul isi modifica dimensiunea cand se depaseste procentajul
+	// maxim de umplere.
 	if ((size + numKeys) / float(capacity) >= MAX_LOAD_FACTOR)
 	{
-		reshape((size + numKeys) / MIN_LOAD_FACTOR + 1);
+		reshape((size + numKeys) / MIN_LOAD_FACTOR);
 	}
 
 	ret = getNumBlocksThreads(numBlocks, numThreads, numKeys);
 	ASSERT(ret, "getNumBlocksThreads() failed", return false);
 
 	kernel_insert<<<numBlocks, numThreads>>>(hashMap, devKeys, devValues,
-		capacity);
+		numUpdates, capacity);
 
 	ret = cudaDeviceSynchronize();
 	ASSERT(ret, "cudaDeviceSynchronize() failed", return false);
 
-	size += numKeys;
+	// S-au adaugat `numKeys` - cheile care au fost updatate (numUpdates).
+	size += numKeys - *numUpdates;
 
 	ret = cudaFree(devKeys);
 	ASSERT(ret, "cudaFree(devKeys) failed", return false);
 
 	ret = cudaFree(devValues);
 	ASSERT(ret, "cudaFree(devValues) failed", return false);
+
+	ret = cudaFree(numUpdates);
+	ASSERT(ret, "cudaFree(numUpdates)", return false);
 
 	return true;
 }
@@ -249,64 +288,25 @@ float GpuHashTable::loadFactor()
 }
 
 cudaError_t GpuHashTable::getNumBlocksThreads(int& numBlocks, int& numThreads,
-	int numKeys)
+	int numItems)
 {
 	cudaError_t ret;
 	cudaDeviceProp devProp;
 
+	// Se presupune ca toate placile sunt de acelasi tip, motiv pentru care se
+	// interogheaza placa 0.
 	ret = cudaGetDeviceProperties(&devProp, 0);
 	ASSERT(ret, "cudaGetDeviceProperties failed", return ret);
 
-	// fprintf(stderr, "threads = %d\n", devProp.maxThreadsPerBlock);
 	numThreads = devProp.maxThreadsPerBlock;
-	numBlocks = numKeys / numThreads;
+	numBlocks = numItems / numThreads;
 
-	if (numBlocks * numThreads != numKeys)
+	if (numBlocks * numThreads != numItems)
 	{
 		++numBlocks;
 	}
 
 	return cudaSuccess;
-}
-
-int GpuHashTable::hashShift(int key)
-{
-	key = ~key + (key << 15); // key = (key << 15) - key - 1;
-	key = key ^ (key >> 12);
-	key = key + (key << 2);
-	key = key ^ (key >> 4);
-	key = key * 2057; // key = (key + (key << 3)) + (key << 11);
-	key = key ^ (key >> 16);
-
-	return key;
-}
-
-int GpuHashTable::hashJenkins(int key)
-{
-	key = (key + 0x7ed55d16) + (key << 12);
-	key = (key ^ 0xc761c23c) ^ (key >> 19);
-	key = (key + 0x165667b1) + (key << 5);
-	key = (key + 0xd3a2646c) ^ (key << 9);
-	key = (key + 0xfd7046c5) + (key << 3);
-	key = (key ^ 0xb55a4f09) ^ (key >> 16);
-
-	return key;
-}
-
-int GpuHashTable::hashShiftMult(int key)
-{
-	key = (key ^ 61) ^ (key >> 16);
-	key = key + (key << 3);
-	key = key ^ (key >> 4);
-	key = key * 0x27d4eb2d;
-	key = key ^ (key >> 15);
-
-	return key;
-}
-
-int GpuHashTable::hashKnuth(int key)
-{
-	return key * 2654435761 % (1LLU << 32);
 }
 
 /*********************************************************/
