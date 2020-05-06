@@ -14,7 +14,17 @@ using namespace std;
 			exit(errno);						\
 		}										\
 	} while (0)
-	
+
+#define ASSERT(assertion, call_description, instr) 	\
+	do {											\
+		if (assertion) {							\
+			fprintf(stderr, "(%s, %d): ",			\
+				__FILE__, __LINE__);				\
+			perror(call_description);				\
+			instr;									\
+		}											\
+	} while (0)
+
 const size_t primeList[] =
 {
 	2llu, 3llu, 5llu, 7llu, 11llu, 13llu, 17llu, 23llu, 29llu, 37llu, 47llu,
@@ -74,6 +84,11 @@ int hash3(int data, int limit) {
 	return ((long)abs(data) * primeList[70]) % primeList[93] % limit;
 }
 
+struct Entry
+{
+	int key, value;
+};
+
 //
 // GPU HashTable
 //
@@ -84,6 +99,13 @@ private:
 	int hashJenkins(int key);
 	int hashShiftMult(int key);
 	int hashKnuth(int key);
+
+	Entry* hashMap;
+	size_t capacity;
+	size_t size;
+
+	cudaError_t getNumBlocksThreads(int& numBlocks, int& numThreads,
+		int numKeys);
 
 public:
 	GpuHashTable(int size);
