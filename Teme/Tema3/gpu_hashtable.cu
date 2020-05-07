@@ -11,7 +11,7 @@
 #define MIN_LOAD_FACTOR		.85f
 
 
-// Calculeaza hash-ul unei chei prin algoritmul descrisa aici
+// Calculeaza hash-ul unei chei prin algoritmul descris aici
 // https://gist.github.com/badboy/6267743
 // Dintre functiile propuse de Bob Jenkins, aceasta avea
 // performantele cele mai bune
@@ -29,7 +29,7 @@ static __device__ size_t computeHash(int key)
 	return hash;
 }
 
-// Kernelul se ocupa cu inserararea unui singur element in hahstable folosind
+// Kernelul se ocupa cu inserarea unui singur element in hahstable folosind
 // tehnica "linear probing".
 static __global__ void kernel_insert(Entry* hashMap, int* devKeys,
 	int* devValues, int* numUpdates, size_t capacity)
